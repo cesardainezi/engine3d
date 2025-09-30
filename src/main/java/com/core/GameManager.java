@@ -3,6 +3,7 @@ package com.core;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,15 +16,23 @@ public class GameManager implements Runnable {
     private Camera camera;
     private List<GameObject> objects = new ArrayList<>();
     private Player player;
+    private TextRenderer textRenderer;
+    private int fps, ups; // para armazenar contadores
 
     @Override
     public void run() {
-        init();
+
+        try {
+            init();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         loop();
         cleanup();
     }
 
-    private void init() {
+    private void init() throws IOException {
         window = new Window(800, 600, "Meu Jogo LWJGL");
         window.create();
 
@@ -44,6 +53,9 @@ public class GameManager implements Runnable {
 
         renderer = new Renderer();
         renderer.init();
+
+        textRenderer = new TextRenderer();
+        textRenderer.init("assets/fonts/arial.ttf", window);
 
         input = new Input(window.getWindowHandle());
         input.initMouse();
@@ -96,7 +108,10 @@ public class GameManager implements Runnable {
 
             // 🔹 A cada 1s, mostra UPS/FPS
             if (fpsTimer >= 1.0) {
-                System.out.println("UPS: " + updates + " | FPS: " + frames);
+                fps = frames;
+                ups = updates;
+                System.out.println("UPS: " + ups + " | FPS: " + fps);
+
                 frames = 0;
                 updates = 0;
                 fpsTimer = 0;
@@ -157,7 +172,6 @@ public class GameManager implements Runnable {
         if (dx != 0 || dy != 0) {
             camera.processMouse((float) dx, (float) dy);
         }
-
     }
 
     private void render() {
@@ -170,6 +184,9 @@ public class GameManager implements Runnable {
         if (camera.getMode() == CameraMode.FREECAM) {
             player.render(camera, window);
         }
+
+        // Render HUD
+        textRenderer.drawText("FPS: " + fps + " | UPS: " + ups, 10, 30);
 
         window.swapBuffers();
     }
