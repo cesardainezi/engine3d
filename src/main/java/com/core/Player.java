@@ -21,6 +21,7 @@ public class Player extends GameObject {
 
     private Vector3f velocity = new Vector3f();  // velocidade atual
     private boolean onGround = true;             // se está encostado no chão
+    private int numberOfJumps;
 
     private final float gravity = 9.8f;
     private final float jumpStrength = 5.0f;     // velocidade inicial para o pulo
@@ -53,6 +54,8 @@ public class Player extends GameObject {
 
 
     public void init() {
+        numberOfJumps = 0;
+
         float[] vertices = {
                 // ---- Frente (0,0,-1)
                 -0.4f, 0f, -0.4f,   0f, 0f, -1f,
@@ -135,6 +138,8 @@ public class Player extends GameObject {
         String vs = ShaderUtils.loadResource("shaders/basic_lighting.vert");
         String fs = ShaderUtils.loadResource("shaders/basic_lighting.frag");
         shaderProgram = ShaderUtils.createProgram(vs, fs);
+
+
     }
 
     @Override
@@ -150,14 +155,14 @@ public class Player extends GameObject {
         position.z += velocity.z * delta;
 
         // --- Movimento vertical / gravidade ---
-        if (!onGround) {
+        if (numberOfJumps > 0) {
             velocity.y -= gravity * delta; // aceleração para baixo
             position.y += velocity.y * delta;
 
             if (position.y <= 0f) { // tocou o chão?
                 position.y = 0f;
                 velocity.y = 0f;
-                onGround = true;
+                numberOfJumps = 0;
             }
         }
     }
@@ -223,9 +228,9 @@ public class Player extends GameObject {
     }
 
     public void jump() {
-        if (onGround) {
+        if (numberOfJumps < 2) {
             velocity.y = jumpStrength;
-            onGround = false;
+            numberOfJumps++;
         }
     }
 

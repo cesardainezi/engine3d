@@ -21,10 +21,10 @@ public class Floor extends GameObject {
         float texScale = 1.0f;         // quantidade de repetições de textura por unidade do mundo
 
         float[] vertices = {
-                -size, 0f, -size,   0, 1, 0,   0,                   0,
-                 size, 0f, -size,   0, 1, 0,   2 * size * texScale, 0,
-                 size, 0f,  size,   0, 1, 0,   2 * size * texScale, 2 * size * texScale,
-                -size, 0f,  size,   0, 1, 0,   0,                   2 * size * texScale
+                -size, 0f, -size,   0, 1, 0,   0,                   2 * size * texScale,
+                 size, 0f, -size,   0, 1, 0,   2 * size * texScale, 2 * size * texScale,
+                 size, 0f,  size,   0, 1, 0,   2 * size * texScale, 0,
+                -size, 0f,  size,   0, 1, 0,   0,                   0
         };
 
         int[] indices = {
