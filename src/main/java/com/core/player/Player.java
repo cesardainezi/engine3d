@@ -22,6 +22,7 @@ public class Player extends GameObject {
     private Vector3f size;
     private float yaw = -90.0f; // olhando para -Z por padrão
     private float pitch = 0.0f;
+    private float height;
 
     private Vector3f velocity = new Vector3f();  // velocidade atual
     private boolean onGround = true;             // se está encostado no chão
@@ -32,6 +33,7 @@ public class Player extends GameObject {
 
     public Player(Vector3f startPos) {
         this.position = startPos;
+        this.height = 1.75f;
         this.size = new Vector3f(0.8f, 2f, 0.8f);
     }
 
@@ -55,7 +57,9 @@ public class Player extends GameObject {
     public float getPitch() { return pitch; }
     public void setYaw(float yaw) { this.yaw = yaw; }
     public void setPitch(float pitch) { this.pitch = pitch; }
-
+    public Vector3f getEyesPosition()  {
+        return new Vector3f(position.x, position.y + height, position.z);
+    }
 
     public void init() {
         numberOfJumps = 0;
