@@ -1,4 +1,4 @@
-package com.core;
+package com.core.graphics;
 
 public enum CameraMode {
     FREECAM,

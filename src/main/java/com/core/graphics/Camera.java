@@ -1,5 +1,6 @@
-package com.core;
+package com.core.graphics;
 
+import com.core.player.Player;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 

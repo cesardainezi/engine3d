@@ -1,4 +1,4 @@
-package com.core;
+package com.core.engine;
 
 import org.lwjgl.opengl.GL20;
 

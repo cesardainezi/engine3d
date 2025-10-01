@@ -1,5 +1,6 @@
-package com.core;
+package com.core.engine;
 
+import com.core.graphics.Window;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;

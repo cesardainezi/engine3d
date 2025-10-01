@@ -1,5 +1,9 @@
-package com.core;
+package com.core.player;
 
+import com.core.engine.GameObject;
+import com.core.engine.ShaderUtils;
+import com.core.graphics.Camera;
+import com.core.graphics.Window;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;

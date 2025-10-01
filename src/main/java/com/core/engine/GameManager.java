@@ -1,5 +1,13 @@
-package com.core;
+package com.core.engine;
 
+import com.core.graphics.Camera;
+import com.core.graphics.CameraMode;
+import com.core.graphics.TextRenderer;
+import com.core.graphics.Window;
+import com.core.input.Input;
+import com.core.models.Cube;
+import com.core.models.Floor;
+import com.core.player.Player;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 

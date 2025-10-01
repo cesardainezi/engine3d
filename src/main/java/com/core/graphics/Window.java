@@ -1,4 +1,4 @@
-package com.core;
+package com.core.graphics;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;

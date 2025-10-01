@@ -1,5 +1,10 @@
-package com.core;
+package com.core.models;
 
+import com.core.engine.GameObject;
+import com.core.engine.ShaderUtils;
+import com.core.graphics.Camera;
+import com.core.graphics.Texture;
+import com.core.graphics.Window;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.MemoryUtil;
