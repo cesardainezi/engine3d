@@ -175,7 +175,6 @@ public class Player extends GameObject {
         }
     }
 
-    @Override
     public void render(Camera camera, Window window) {
         GL20.glUseProgram(shaderProgram);
 

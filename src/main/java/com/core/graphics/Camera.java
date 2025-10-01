@@ -56,6 +56,10 @@ public class Camera {
                 position.sub(new Vector3f(right).mul(velocity));
             if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_D)
                 position.add(new Vector3f(right).mul(velocity));
+            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE)
+                position.add(new Vector3f(up).mul(velocity));
+            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT)
+                position.sub(new Vector3f(up).mul(velocity));
         }
         else if (mode == CameraMode.PLAYER) {
             // aqui não move a camera, move o player

@@ -80,13 +80,16 @@ public class Scene {
             if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
             if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
             if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
+            if (input.isKeyJustPressed(GLFW.GLFW_KEY_SPACE)) player.jump();
         }
 
         if (input.isKeyPressed(GLFW.GLFW_KEY_W)) camera.processKeyboard(GLFW.GLFW_KEY_W, dt);
         if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
         if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
         if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
-        if (input.isKeyJustPressed(GLFW.GLFW_KEY_SPACE)) player.jump();
+        if (input.isKeyPressed(GLFW.GLFW_KEY_SPACE)) camera.processKeyboard(GLFW.GLFW_KEY_SPACE, dt);
+        if (input.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)) camera.processKeyboard(GLFW.GLFW_KEY_LEFT_SHIFT, dt);
+
 
         double dx = input.getDeltaX();
         double dy = input.getDeltaY();
