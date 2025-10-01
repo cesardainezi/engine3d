@@ -19,11 +19,8 @@ public class GameManager implements Runnable {
 
     private boolean running = false;
     private Window window;
-    private Renderer renderer;
     private Input input;
-    private Camera camera;
-    private List<GameObject> objects = new ArrayList<>();
-    private Player player;
+    private Scene scene;
     private TextRenderer textRenderer;
     private int fps, ups; // para armazenar contadores
 
@@ -44,30 +41,17 @@ public class GameManager implements Runnable {
         window = new Window(800, 600, "Meu Jogo LWJGL");
         window.create();
 
-        GLFW.glfwSetInputMode(window.getWindowHandle(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-
-        player = new Player(new Vector3f(0.0f, 0.0f, 2.0f));
-        player.init();
-
-        camera = new Camera(player);
-
-        Cube cube = new Cube(new Vector3f(0.5f, 0.866f, 0.5f));
-        cube.init();
-        objects.add(cube);
-
-        Floor plane = new Floor();
-        plane.init();
-        objects.add(plane);
-
-        renderer = new Renderer();
-        renderer.init();
-
-        textRenderer = new TextRenderer();
-        textRenderer.init("assets/fonts/arial.ttf", window);
-
+        // Initialize input
         input = new Input(window.getWindowHandle());
         input.initMouse();
 
+        scene = new Scene(new Vector3f(0f, 0f, 2f), input);
+        scene.init();
+
+        GLFW.glfwSetInputMode(window.getWindowHandle(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+
+        textRenderer = new TextRenderer();
+        textRenderer.init("assets/fonts/arial.ttf", window);
     }
 
     private void loop() {
@@ -130,68 +114,25 @@ public class GameManager implements Runnable {
     private void update(double dt) {
         window.pollEvents();
         input.update();
+        scene.update(dt);
 
-        for (GameObject obj : objects) {
-            obj.update(dt);
-        }
-
-        player.update(dt);
-
-        if (camera.getMode() == CameraMode.PLAYER) {
-            // zera movimento horizontal
-            player.getVelocity().x = 0;
-            player.getVelocity().z = 0;
-
-            // camera segue o player
-            camera.position.set(
-                    player.getPosition().x,
-                    player.getPosition().y + 1.75f,
-                    player.getPosition().z
-            );
-
-            if (input.isKeyPressed(GLFW.GLFW_KEY_W)) camera.processKeyboard(GLFW.GLFW_KEY_W, dt);
-            if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
-            if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
-            if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
-        }
-
-        // Exemplo: Encerra com ESC
+        // Close game with ESC
         if (input.isKeyJustPressed(GLFW.GLFW_KEY_ESCAPE)) {
             running = false;
         }
 
+        // Fullscreen with Alt+Enter
         if (input.isKeyJustPressed(GLFW.GLFW_KEY_ENTER) &&
                 (input.isKeyPressed(GLFW.GLFW_KEY_LEFT_ALT) || input.isKeyPressed(GLFW.GLFW_KEY_RIGHT_ALT))) {
             window.toggleFullscreen();
         }
 
+        // Fullscreen with F11
         if (input.isKeyJustReleased(GLFW.GLFW_KEY_F11)) window.toggleFullscreen();
-        if (input.isKeyJustReleased(GLFW.GLFW_KEY_F4)) camera.toggleMode();
-
-        if (input.isKeyPressed(GLFW.GLFW_KEY_W)) camera.processKeyboard(GLFW.GLFW_KEY_W, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
-        if (input.isKeyJustPressed(GLFW.GLFW_KEY_SPACE)) player.jump();
-
-        double dx = input.getDeltaX();
-        double dy = input.getDeltaY();
-
-        if (dx != 0 || dy != 0) {
-            camera.processMouse((float) dx, (float) dy);
-        }
     }
 
     private void render() {
-        renderer.clear();
-
-        for (GameObject obj : objects) {
-            obj.render(camera, window);
-        }
-
-        if (camera.getMode() == CameraMode.FREECAM) {
-            player.render(camera, window);
-        }
+        scene.render(window);
 
         // Render HUD
         textRenderer.drawText("FPS: " + fps + " | UPS: " + ups, 10, 30);
@@ -201,5 +142,6 @@ public class GameManager implements Runnable {
 
     private void cleanup() {
         window.destroy();
+        scene.cleanup();
     }
 }
