@@ -26,9 +26,19 @@ public class Renderer {
         bgColor = new Vector3f(0f,0f,0f);
     }
 
-    public void renderScene(List<GameObject> objects, Camera camera, Window window) {
-        clear();
+    public void renderObject(GameObject obj, Camera camera, Window window){
+        // Configura view/projection globais
+        Matrix4f projection = new Matrix4f().perspective(
+                (float)Math.toRadians(70.0f),
+                (float) window.getWidth() / window.getHeight(),
+                0.01f, 1000f
+        );
+        Matrix4f view = camera.getViewMatrix();
 
+        renderObject(obj, view, projection);
+    }
+
+    public void renderScene(List<GameObject> objects, Camera camera, Window window) {
         // Configura view/projection globais
         Matrix4f projection = new Matrix4f().perspective(
                 (float)Math.toRadians(70.0f),
@@ -43,13 +53,13 @@ public class Renderer {
     }
 
     private void renderObject(GameObject obj, Matrix4f view, Matrix4f projection) {
-
         if (obj.getMesh() == null || obj.getMaterial() == null) return;
 
         Transform transform = obj.getTransform();
+        Material material = obj.getMaterial();
 
-        // Usa o material (shader + textura)
-        obj.getMaterial().use();
+        // Usa o material
+        material.use();
 
         // Calcula matrizes
         Matrix4f model = new Matrix4f().identity()
@@ -64,19 +74,24 @@ public class Renderer {
 
         // Envia uniforms
         mvp.get(fb.clear());
-        GL20.glUniformMatrix4fv(obj.getMaterial().getMvpLoc(), false, fb);
+        GL20.glUniformMatrix4fv(material.getMvpLoc(), false, fb);
 
         model.get(fb.clear());
-        GL20.glUniformMatrix4fv(obj.getMaterial().getModelLoc(), false, fb);
+        GL20.glUniformMatrix4fv(material.getModelLoc(), false, fb);
 
-        GL20.glUniform3f(obj.getMaterial().getLightLoc(), 2.0f, 10.0f, 2.0f);
-        GL20.glUniform3f(obj.getMaterial().getColorLoc(), 0.5f, 0.5f, 0.5f);
+        GL20.glUniform3f(material.getLightLoc(), 2.0f, 10.0f, 2.0f);
 
-        // Desenha o mesh
+        // Se tiver textura, o shader usa UVs
+        // Se não tiver textura, o shader usa só cor
+        Vector3f color = material.getColor();
+        GL20.glUniform3f(material.getColorLoc(), color.x, color.y, color.z);
+
+        // Renderiza
         obj.getMesh().render();
 
-        obj.getMaterial().stop();
+        material.stop();
     }
+
 
     public void setBackgroundColor(float red, float green, float blue){
         bgColor = new Vector3f(red, green, blue);

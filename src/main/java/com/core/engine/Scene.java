@@ -30,7 +30,6 @@ public class Scene {
     public void init(){
         // Initialize player
         player = new Player(spawnPoint);
-        player.init();
 
         // Initialize object list
         objects = new ArrayList<>();
@@ -105,7 +104,7 @@ public class Scene {
         renderer.renderScene(objects, camera, window);
 
         if (camera.getMode() == CameraMode.FREECAM) {
-            player.render(camera, window);
+            renderer.renderObject(player, camera, window);
         }
     }
 
