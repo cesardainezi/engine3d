@@ -3,6 +3,9 @@ package com.core.graphics;
 import com.core.player.Player;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.Set;
 
 public class Camera {
 
@@ -14,8 +17,8 @@ public class Camera {
     private float yaw;
     private float pitch;
 
-    private float speed = 2.5f;       // unidades por segundo
-    private float sensitivity = 0.2f; // para o mouse
+    private float speed = 5f;       // unidades por segundo
+    private float sensitivity = 0.1f; // para o mouse
 
     private CameraMode mode;
 
@@ -41,31 +44,32 @@ public class Camera {
         return new Matrix4f().lookAt(position, target, up);
     }
 
-    public void processKeyboard(int key, double dt) {
-        if (mode == CameraMode.FREECAM) {
-            float velocity = speed * (float) dt;
+    public void processKeyboard(Set<Integer> keys, double dt) {
+        float velocity = speed * (float) dt;
 
+        if (mode == CameraMode.FREECAM) {
             Vector3f right = new Vector3f();
             front.cross(up, right).normalize();
 
-            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_W)
+            if (keys.contains(GLFW.GLFW_KEY_W))
                 position.add(new Vector3f(front).mul(velocity));
-            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_S)
+            if (keys.contains(GLFW.GLFW_KEY_S))
                 position.sub(new Vector3f(front).mul(velocity));
-            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_A)
+            if (keys.contains(GLFW.GLFW_KEY_A))
                 position.sub(new Vector3f(right).mul(velocity));
-            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_D)
+            if (keys.contains(GLFW.GLFW_KEY_D))
                 position.add(new Vector3f(right).mul(velocity));
-            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE)
+            if (keys.contains(GLFW.GLFW_KEY_SPACE))
                 position.add(new Vector3f(up).mul(velocity));
-            if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT)
+            if (keys.contains(GLFW.GLFW_KEY_LEFT_SHIFT))
                 position.sub(new Vector3f(up).mul(velocity));
         }
         else if (mode == CameraMode.PLAYER) {
-            // aqui não move a camera, move o player
-            player.processKeyboard(key, dt, speed);
+            // Agora passa o conjunto inteiro de teclas para o player
+            player.processKeyboard(keys, dt);
         }
     }
+
 
     public void toggleMode() {
         if (mode == CameraMode.FREECAM) {

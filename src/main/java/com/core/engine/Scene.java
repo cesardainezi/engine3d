@@ -12,6 +12,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Scene {
 
@@ -21,6 +22,7 @@ public class Scene {
     private Camera camera;
     private List<GameObject> objects;
     private Input input;
+    private final float gravity = 9.8f;
 
     public Scene(Vector3f spawnPoint, Input input){
         this.spawnPoint = spawnPoint;
@@ -53,7 +55,7 @@ public class Scene {
         objects.add(plane);
     }
 
-    public void update(double dt){
+    public void update(double dt) {
         // Updates all scene objects
         for (GameObject obj : objects) {
             obj.update(dt);
@@ -65,38 +67,30 @@ public class Scene {
         // Handles camera modes
         if (input.isKeyJustReleased(GLFW.GLFW_KEY_F4)) camera.toggleMode();
 
-        // If 1st person (PLAYER mode)
+        // Pega todas as teclas pressionadas neste frame
+        Set<Integer> pressedKeys = input.getPressedKeys();
+
+        // Se estiver no modo PLAYER → câmera segue player
         if (camera.getMode() == CameraMode.PLAYER) {
-            // Nullify horizontal movement
-            player.getVelocity().x = 0;
-            player.getVelocity().z = 0;
-
-            // Camera follows player position + height
-
+            // Câmera segue a cabeça do player
             camera.position.set(player.getEyesPosition());
 
-            if (input.isKeyPressed(GLFW.GLFW_KEY_W)) camera.processKeyboard(GLFW.GLFW_KEY_W, dt);
-            if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
-            if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
-            if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
-            if (input.isKeyJustPressed(GLFW.GLFW_KEY_SPACE)) player.jump();
+            if (pressedKeys.contains(GLFW.GLFW_KEY_SPACE)) {
+                player.jump();
+            }
         }
 
-        if (input.isKeyPressed(GLFW.GLFW_KEY_W)) camera.processKeyboard(GLFW.GLFW_KEY_W, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_SPACE)) camera.processKeyboard(GLFW.GLFW_KEY_SPACE, dt);
-        if (input.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)) camera.processKeyboard(GLFW.GLFW_KEY_LEFT_SHIFT, dt);
+        // Passa todas as teclas para a câmera (ela decide se aplica ao freecam ou ao player)
+        camera.processKeyboard(pressedKeys, dt);
 
-
+        // Mouse look
         double dx = input.getDeltaX();
         double dy = input.getDeltaY();
-
         if (dx != 0 || dy != 0) {
             camera.processMouse((float) dx, (float) dy);
         }
     }
+
 
     public void render(Window window){
         renderer.clear();
