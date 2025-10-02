@@ -1,17 +1,24 @@
-#version 330 core
-in vec3 fragPos;
-in vec3 fragNormal;
-out vec4 FragColor;
-
-uniform vec3 lightPos;
+uniform sampler2D uTexture;
 uniform vec3 objectColor;
+uniform bool useTexture;
+
+in vec2 fragTexCoord;
+in vec3 fragNormal;
+
+out vec4 fragColor;
 
 void main() {
-    vec3 norm = normalize(fragNormal);
-    vec3 lightDir = normalize(lightPos - fragPos);
+    vec3 baseColor = objectColor;
 
-    float diff = max(dot(norm, lightDir), 0.0);
+    if (useTexture) {
+        baseColor = texture(uTexture, fragTexCoord).rgb;
+    }
 
-    vec3 diffuse = (0.5 + 0.5*diff) * objectColor;
-    FragColor = vec4(diffuse, 1.0);
+    // Iluminação simples (ambient + diffuse)
+
+    vec3 lightDir = normalize(vec3(2.0, 10.0, 2.0));
+    float diff = max(dot(fragNormal, lightDir), 0.0);
+
+    vec3 finalColor = baseColor * (0.2 + 0.8 * diff);
+    fragColor = vec4(finalColor, 1.0);
 }

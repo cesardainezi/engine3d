@@ -16,6 +16,5 @@ public abstract class GameObject {
     public Material getMaterial() { return material; }
 
     public abstract void update(double dt);
-    public abstract void render(Camera camera, Window window);
     public abstract void cleanup();
 }

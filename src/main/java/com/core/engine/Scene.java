@@ -30,7 +30,6 @@ public class Scene {
     public void init(){
         // Initialize player
         player = new Player(spawnPoint);
-        player.init();
 
         // Initialize object list
         objects = new ArrayList<>();
@@ -80,13 +79,16 @@ public class Scene {
             if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
             if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
             if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
+            if (input.isKeyJustPressed(GLFW.GLFW_KEY_SPACE)) player.jump();
         }
 
         if (input.isKeyPressed(GLFW.GLFW_KEY_W)) camera.processKeyboard(GLFW.GLFW_KEY_W, dt);
         if (input.isKeyPressed(GLFW.GLFW_KEY_S)) camera.processKeyboard(GLFW.GLFW_KEY_S, dt);
         if (input.isKeyPressed(GLFW.GLFW_KEY_A)) camera.processKeyboard(GLFW.GLFW_KEY_A, dt);
         if (input.isKeyPressed(GLFW.GLFW_KEY_D)) camera.processKeyboard(GLFW.GLFW_KEY_D, dt);
-        if (input.isKeyJustPressed(GLFW.GLFW_KEY_SPACE)) player.jump();
+        if (input.isKeyPressed(GLFW.GLFW_KEY_SPACE)) camera.processKeyboard(GLFW.GLFW_KEY_SPACE, dt);
+        if (input.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)) camera.processKeyboard(GLFW.GLFW_KEY_LEFT_SHIFT, dt);
+
 
         double dx = input.getDeltaX();
         double dy = input.getDeltaY();
@@ -102,7 +104,7 @@ public class Scene {
         renderer.renderScene(objects, camera, window);
 
         if (camera.getMode() == CameraMode.FREECAM) {
-            player.render(camera, window);
+            renderer.renderObject(player, camera, window);
         }
     }
 

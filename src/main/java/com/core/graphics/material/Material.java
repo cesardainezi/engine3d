@@ -2,11 +2,13 @@ package com.core.graphics.material;
 
 import com.core.graphics.Texture;
 import com.core.engine.ShaderUtils;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL20;
 
 public class Material {
     private int shaderProgram;
     private Texture texture;
+    private Vector3f color;
 
     private int mvpLoc, modelLoc, lightLoc, colorLoc;
 
@@ -15,18 +17,39 @@ public class Material {
         String fs = ShaderUtils.loadResource(fragShaderPath);
         shaderProgram = ShaderUtils.createProgram(vs, fs);
 
-        texture = new Texture(texturePath);
+        if(texturePath != null)
+            texture = new Texture(texturePath);
+        else
+            texture = null;
 
         mvpLoc   = GL20.glGetUniformLocation(shaderProgram, "uMVP");
         modelLoc = GL20.glGetUniformLocation(shaderProgram, "uModel");
         lightLoc = GL20.glGetUniformLocation(shaderProgram, "lightPos");
         colorLoc = GL20.glGetUniformLocation(shaderProgram, "objectColor");
+        color = new Vector3f(1f, 1f, 1f);
+    }
+
+    public void setColor(float r, float g, float b) {
+        this.color.set(r, g, b);
+    }
+
+    public Vector3f getColor() {
+        return color;
     }
 
     public void use() {
         GL20.glUseProgram(shaderProgram);
-        texture.bind();
-        GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "uTexture"), 0);
+
+        // informa ao shader se deve usar textura ou não
+        int useTexLoc = GL20.glGetUniformLocation(shaderProgram, "useTexture");
+
+        if (texture != null) {
+            texture.bind();
+            GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "uTexture"), 0);
+            GL20.glUniform1i(useTexLoc, 1);
+        } else {
+            GL20.glUniform1i(useTexLoc, 0);
+        }
     }
 
     public void stop() {
@@ -40,6 +63,9 @@ public class Material {
 
     public void cleanup() {
         GL20.glDeleteProgram(shaderProgram);
-        texture.cleanup();
+
+        if (texture != null) {
+            texture.cleanup();
+        }
     }
 }

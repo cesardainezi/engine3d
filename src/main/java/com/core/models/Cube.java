@@ -82,44 +82,6 @@ public class Cube extends GameObject {
     }
 
     @Override
-    public void render(Camera camera, Window window) {
-        material.use();
-
-        // Matriz Model/View/Projection
-        Matrix4f model = new Matrix4f().identity()
-                .translate(transform.position)
-                .rotateX(transform.rotation.x)
-                .rotateY(transform.rotation.y)
-                .scale(transform.scale);
-
-        Matrix4f view = camera.getViewMatrix();
-        Matrix4f projection = new Matrix4f().perspective(
-                (float)Math.toRadians(70.0f),
-                (float) window.getWidth() / window.getHeight(),
-                0.01f, 100.0f);
-
-        Matrix4f mvp = new Matrix4f();
-        projection.mul(view, mvp).mul(model);
-
-        // Enviar uniforms
-        FloatBuffer fb = BufferUtils.createFloatBuffer(16);
-        mvp.get(fb);
-        GL20.glUniformMatrix4fv(material.getMvpLoc(), false, fb);
-
-        fb.clear();
-        model.get(fb);
-        GL20.glUniformMatrix4fv(material.getModelLoc(), false, fb);
-
-        GL20.glUniform3f(material.getLightLoc(), 2.0f, 10.0f, 2.0f);
-        GL20.glUniform3f(material.getColorLoc(), 0.5f, 0.5f, 0.5f);
-
-        // Renderiza mesh
-        mesh.render();
-
-        material.stop();
-    }
-
-    @Override
     public void cleanup() {
         mesh.cleanup();
         material.cleanup();
