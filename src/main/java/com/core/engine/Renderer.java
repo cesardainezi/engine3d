@@ -4,17 +4,14 @@ import com.core.engine.components.Transform;
 import com.core.graphics.Camera;
 import com.core.graphics.Window;
 import com.core.graphics.material.Material;
-import com.core.graphics.mesh.Mesh;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.util.List;
-import java.util.Vector;
 
 public class Renderer {
 

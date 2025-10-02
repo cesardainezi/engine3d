@@ -2,6 +2,9 @@ package com.core.input;
 
 import org.lwjgl.glfw.GLFW;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Input {
     private long window;
     private double lastMouseX, lastMouseY;
@@ -45,6 +48,16 @@ public class Input {
     public boolean isKeyJustReleased(int key) {
         if (key < 0 || key >= keys.length) return false;
         return !keys[key] && prevKeys[key];
+    }
+
+    public Set<Integer> getPressedKeys() {
+        Set<Integer> pressed = new HashSet<>();
+        for (int i = 0; i < keys.length; i++) {
+            if (keys[i]) {
+                pressed.add(i);
+            }
+        }
+        return pressed;
     }
 
     public void initMouse() {
