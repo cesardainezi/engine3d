@@ -14,14 +14,31 @@ public class Player extends GameObject {
     // Physical attributes
     private float yaw = -90.0f;
     private float pitch = 0.0f;
-    private final float height = 1.75f;
+    private final float playerHeight = 2f;
+    private final float crouchingFactor = 0.6f;
+    private final float standingEyeHeight = 0.9f * playerHeight;
+    private final float crouchingEyeHeight = standingEyeHeight - (1f - crouchingFactor) * playerHeight;
+    private float currentEyeHeight = standingEyeHeight;
+
+    // Velocidade de transição (m/s)
+    private final float eyeTransitionSpeed = 5.0f;
 
     // Movement attributes
     private Vector3f velocity = new Vector3f();
-    private float accel = 15.0f;        // aceleração (unidades/s²)
-    private float maxSpeed = 3.5f;      // velocidade máxima
-    private float friction = 40.0f;
-    private float gravity = 9.8f;
+    private final float accel = 15.0f;        // aceleração (unidades/s²)
+    private final float baseSpeed = 3.5f;      // velocidade máxima
+
+    private final float sprintMultiplier = 2.0f;
+    private final float crouchMultiplier = 0.5f;
+    private final float walkMultiplier = 0.5f; // “walk lento”
+
+    private boolean isSprinting = false;
+    private boolean isCrouching = false;
+    private boolean isWalkingSlow = false;
+
+    // World physics
+    private final float friction = 40.0f;
+    private final float gravity = 9.8f;
 
     // Special movement
     private int numberOfJumps;
@@ -29,7 +46,7 @@ public class Player extends GameObject {
 
     public Player(Vector3f startPos) {
         this.transform = new Transform(startPos);
-        this.transform.scale.set(0.8f, 2.0f, 0.8f); // paralelepípedo
+        this.transform.scale.set(0.8f, playerHeight, 0.8f); // paralelepípedo
         this.mesh = MeshFactory.createCube(1.0f, 1.0f, 1.0f);
         this.material = new Material("shaders/basic_lighting.vert", "shaders/basic_lighting.frag", null);
         this.material.setColor(0.0f, 1.0f, 0f); // verde
@@ -47,14 +64,32 @@ public class Player extends GameObject {
     public void setPitch(float pitch) { this.pitch = pitch; }
 
     public Vector3f getEyesPosition() {
-        return new Vector3f(transform.position.x,
-                transform.position.y + height,
-                transform.position.z);
+        return new Vector3f(
+                transform.position.x,
+                transform.position.y + currentEyeHeight,
+                transform.position.z
+        );
     }
 
     @Override
     public void update(double dt) {
         float delta = (float) dt;
+
+        // Atualiza altura dos olhos suavemente conforme estado de crouch
+        float targetEyeHeight = isCrouching ? crouchingEyeHeight : standingEyeHeight;
+
+        if (Math.abs(currentEyeHeight - targetEyeHeight) > 0.01f) {
+            float direction = Math.signum(targetEyeHeight - currentEyeHeight);
+            currentEyeHeight += direction * eyeTransitionSpeed * (float) dt;
+
+            // Evita ultrapassar o valor alvo
+            if ((direction > 0 && currentEyeHeight > targetEyeHeight) ||
+                    (direction < 0 && currentEyeHeight < targetEyeHeight)) {
+                currentEyeHeight = targetEyeHeight;
+            }
+        } else {
+            currentEyeHeight = targetEyeHeight;
+        }
 
         // --- movimento horizontal ---
         transform.position.x += velocity.x * delta;
@@ -82,6 +117,19 @@ public class Player extends GameObject {
     public void processKeyboard(Set<Integer> keys, double dt) {
         if(numberOfJumps > 0)
             return;
+
+        // --- Determina estados ---
+        isSprinting = keys.contains(GLFW.GLFW_KEY_LEFT_SHIFT);
+        isCrouching = keys.contains(GLFW.GLFW_KEY_LEFT_CONTROL);
+        isWalkingSlow = keys.contains(GLFW.GLFW_KEY_LEFT_ALT);
+
+        // --- Calcula velocidade máxima atual ---
+        float speedMultiplier = 1.0f;
+        if (isSprinting) speedMultiplier = sprintMultiplier;
+        else if (isCrouching) speedMultiplier = crouchMultiplier;
+        else if (isWalkingSlow) speedMultiplier = walkMultiplier;
+
+        float currentMaxSpeed = baseSpeed * speedMultiplier;
 
         // Get player's forward direction
         Vector3f forward = new Vector3f(
@@ -129,10 +177,17 @@ public class Player extends GameObject {
 
         // limitar velocidade máxima (só horizontal)
         Vector3f horizontalVel = new Vector3f(velocity.x, 0, velocity.z);
-        if (horizontalVel.length() > maxSpeed) {
-            horizontalVel.normalize().mul(maxSpeed);
+        if (horizontalVel.length() > currentMaxSpeed) {
+            horizontalVel.normalize().mul(currentMaxSpeed);
             velocity.x = horizontalVel.x;
             velocity.z = horizontalVel.z;
+        }
+
+        // --- Efeito visual de crouch (opcional) ---
+        if (isCrouching) {
+            transform.scale.y = crouchingFactor * playerHeight; // jogador “menor”
+        } else {
+            transform.scale.y = playerHeight;
         }
     }
 
