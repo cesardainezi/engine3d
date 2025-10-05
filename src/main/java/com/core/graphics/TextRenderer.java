@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -16,11 +19,46 @@ import static org.lwjgl.stb.STBTruetype.*;
 
 public class TextRenderer {
 
+    private static class TimedText {
+        String text;
+        float x, y;
+        float duration;
+        float elapsed = 0f;
+        float alpha = 0f;
+
+        TimedText(String text, float x, float y, float duration) {
+            this.text = text;
+            this.x = x;
+            this.y = y;
+            this.duration = duration;
+        }
+
+        void update(float dt) {
+            elapsed += dt;
+
+            if (elapsed < FADE_TIME) {
+                alpha = elapsed / FADE_TIME; // fade in
+            } else if (elapsed > duration - FADE_TIME) {
+                alpha = Math.max(0f, (duration - elapsed) / FADE_TIME); // fade out
+            } else {
+                alpha = 1f;
+            }
+        }
+
+        boolean isFinished() {
+            return elapsed >= duration;
+        }
+    }
+
+    private static final float FADE_TIME = 2f;
+
     private int texId;
     private STBTTBakedChar.Buffer cdata;
     private int bitmapW = 512;
     private int bitmapH = 512;
     private float fontSize = 24f;
+
+    private final List<TimedText> activeTexts = new ArrayList<>();
 
     private Window window;
 
@@ -59,11 +97,10 @@ public class TextRenderer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-    public void drawText(String text, float x, float y) {
+    public void drawText(String text, float x, float y, float alpha) {
         glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT);
         glDisable(GL_DEPTH_TEST);
 
-        // Configura ortográfica com base no Window
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
@@ -73,21 +110,17 @@ public class TextRenderer {
         glPushMatrix();
         glLoadIdentity();
 
-        // Renderiza texto
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texId);
-        glColor3f(1,1,1);
+        glColor4f(1f, 1f, 1f, alpha); // <--- usa alpha
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer xBuf = stack.floats(x);
             FloatBuffer yBuf = stack.floats(y);
             STBTTAlignedQuad q = STBTTAlignedQuad.malloc(stack);
-
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, texId);
-            glColor3f(1f, 1f, 1f);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glBegin(GL_QUADS);
             for (int i = 0; i < text.length(); i++) {
@@ -103,13 +136,30 @@ public class TextRenderer {
             glEnd();
         }
 
-        // restaura matrizes
-        glPopMatrix(); // MODELVIEW
+        glPopMatrix();
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
 
         glPopAttrib();
+    }
+
+    public void addTimedText(String text, float x, float y, float duration) {
+        activeTexts.add(new TimedText(text, x, y, duration));
+    }
+
+    public void update(double dt) {
+        for (Iterator<TimedText> it = activeTexts.iterator(); it.hasNext();) {
+            TimedText t = it.next();
+            t.update((float) dt);
+            if (t.isFinished()) it.remove();
+        }
+    }
+
+    public void render() {
+        for (TimedText t : activeTexts) {
+            drawText(t.text, t.x, t.y, t.alpha);
+        }
     }
 
     public void cleanup() {

@@ -52,6 +52,16 @@ public class GameManager implements Runnable {
 
         textRenderer = new TextRenderer();
         textRenderer.init("assets/fonts/arial.ttf", window);
+
+        float defaultTime = 30f;
+        textRenderer.addTimedText("F4: Toogle Free cam / Player", 10, 100, defaultTime);
+        textRenderer.addTimedText("WASD: Move player / camera", 10, 120, defaultTime);
+        textRenderer.addTimedText("Space: Jump / double jump", 10, 140, defaultTime);
+        textRenderer.addTimedText("Left Shift: Sprint", 10, 160, defaultTime);
+        textRenderer.addTimedText("Left Ctrl: Crouch", 10, 180, defaultTime);
+        textRenderer.addTimedText("Left Alt: Slow walk", 10, 200, defaultTime);
+        textRenderer.addTimedText("Alt+Enter or F11: Window mode", 10, 220, defaultTime);
+        textRenderer.addTimedText("Esc: Quit game", 10, 240, defaultTime);
     }
 
     private void loop() {
@@ -115,6 +125,7 @@ public class GameManager implements Runnable {
         window.pollEvents();
         input.update();
         scene.update(dt);
+        textRenderer.update(dt); // atualiza fades, timers, etc.
 
         // Close game with ESC
         if (input.isKeyJustPressed(GLFW.GLFW_KEY_ESCAPE)) {
@@ -135,7 +146,8 @@ public class GameManager implements Runnable {
         scene.render(window);
 
         // Render HUD
-        textRenderer.drawText("FPS: " + fps + " | UPS: " + ups, 10, 30);
+        textRenderer.drawText("FPS: " + fps + " | UPS: " + ups, 10, 30, 1.0f);
+        textRenderer.render();
 
         window.swapBuffers();
     }
