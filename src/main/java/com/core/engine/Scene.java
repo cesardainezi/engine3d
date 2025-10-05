@@ -61,9 +61,6 @@ public class Scene {
             obj.update(dt);
         }
 
-        // Updates player
-        player.update(dt);
-
         // Handles camera modes
         if (input.isKeyJustReleased(GLFW.GLFW_KEY_F4)) camera.toggleMode();
 
@@ -75,7 +72,7 @@ public class Scene {
             // Câmera segue a cabeça do player
             camera.position.set(player.getEyesPosition());
 
-            if (pressedKeys.contains(GLFW.GLFW_KEY_SPACE)) {
+            if (input.isKeyJustPressed(GLFW.GLFW_KEY_SPACE)) {
                 player.jump();
             }
         }
@@ -89,8 +86,10 @@ public class Scene {
         if (dx != 0 || dy != 0) {
             camera.processMouse((float) dx, (float) dy);
         }
-    }
 
+        // Updates player
+        player.update(dt);
+    }
 
     public void render(Window window){
         renderer.clear();

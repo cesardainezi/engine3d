@@ -19,7 +19,7 @@ public class Player extends GameObject {
     // Movement attributes
     private Vector3f velocity = new Vector3f();
     private float accel = 15.0f;        // aceleração (unidades/s²)
-    private float maxSpeed = 3.0f;      // velocidade máxima
+    private float maxSpeed = 3.5f;      // velocidade máxima
     private float friction = 40.0f;
     private float gravity = 9.8f;
 
@@ -72,7 +72,6 @@ public class Player extends GameObject {
             }
         }
     }
-
 
     @Override
     public void cleanup() {
